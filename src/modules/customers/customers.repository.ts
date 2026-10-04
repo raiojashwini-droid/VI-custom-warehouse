@@ -56,6 +56,12 @@ export class CustomersRepository {
     return Number(total);
   }
 
+  async getNextCustomerNumber(): Promise<string> {
+    const total = await this.countTotal();
+    const nextSeq = String(total + 1).padStart(4, '0');
+    return `CUS-2026-${nextSeq}`;
+  }
+
   async create(data: CreateCustomerInput & { customerNumber: string; createdDate: string }) {
     const [created] = await db
       .insert(customers)

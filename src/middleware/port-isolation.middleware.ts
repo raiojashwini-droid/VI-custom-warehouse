@@ -28,7 +28,12 @@ export async function enforcePortIsolation(
   const query = request.query as Record<string, unknown> | undefined;
   const body = request.body as Record<string, unknown> | undefined;
 
-  // For POST requests, auto-assign the agent's port code if missing
+  // Auto-scope query for listing endpoints if not explicitly set
+  if (query && !query.destinationCode) {
+    query.destinationCode = agentPortCode;
+  }
+
+  // For POST/PUT/PATCH requests, auto-assign the agent's port code if missing
   if (body && !body.destinationCode) {
     body.destinationCode = agentPortCode;
   }
@@ -40,9 +45,9 @@ export async function enforcePortIsolation(
     (query?.portCode as string) ||
     (body?.destinationCode as string);
 
-  if (targetPortCode && agentPortCode && targetPortCode.toUpperCase() !== agentPortCode.toUpperCase() && targetPortCode !== 'All') {
+  if (targetPortCode && targetPortCode !== 'All' && targetPortCode.toUpperCase() !== agentPortCode.toUpperCase()) {
     throw new AppError(
-      `Access denied: Port Agent is restricted to port '${agentPortCode}' and cannot access '${targetPortCode}'`,
+      `Forbidden: Agent is restricted to assigned port '${agentPortCode}' and cannot access or modify records for '${targetPortCode}'`,
       403,
       true
     );

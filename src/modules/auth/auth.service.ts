@@ -17,7 +17,13 @@ export class AuthService {
       throw new AppError('This user account is inactive. Please contact system administrator.', 403, true);
     }
 
-    const isMatch = await bcrypt.compare(input.password, user.passwordHash);
+    let isMatch = false;
+    try {
+      isMatch = await bcrypt.compare(input.password, user.passwordHash);
+    } catch {
+      isMatch = false;
+    }
+
     if (!isMatch) {
       throw new AppError('Invalid email or password', 401, true);
     }

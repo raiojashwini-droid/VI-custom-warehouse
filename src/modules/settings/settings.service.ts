@@ -22,6 +22,10 @@ export class SettingsService {
   async updateSetting(key: string, value: Record<string, unknown>, description?: string) {
     return this.repo.upsert(key, value, description);
   }
+
+  async cleanSlate(userId?: string, userName?: string, userRole?: string, ipAddress?: string) {
+    return this.repo.cleanSlate(userId, userName, userRole, ipAddress);
+  }
 }
 
 export const settingsService = new SettingsService();

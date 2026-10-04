@@ -94,9 +94,40 @@ export class BillsOfLadingService {
   }
 
   async updateBill(idOrNumber: string, input: UpdateBillOfLadingInput) {
-    await this.getBill(idOrNumber);
+    const existing = await this.getBill(idOrNumber);
 
     const updatePayload: Record<string, unknown> = { ...input };
+    delete updatePayload.id;
+    delete updatePayload.linkedHouseBills;
+    delete updatePayload.linkedShipment;
+    delete updatePayload.linkedWarehouseReceipts;
+    delete updatePayload.destinationPortCode;
+
+    if ((input as any).shipperName) {
+      updatePayload.shipper = {
+        name: (input as any).shipperName,
+        address: (input as any).shipperAddress || (existing.shipper as any)?.address || '',
+      };
+      delete (updatePayload as any).shipperName;
+      delete (updatePayload as any).shipperAddress;
+    }
+    if ((input as any).consigneeName) {
+      updatePayload.consignee = {
+        name: (input as any).consigneeName,
+        address: (input as any).consigneeAddress || (existing.consignee as any)?.address || '',
+      };
+      delete (updatePayload as any).consigneeName;
+      delete (updatePayload as any).consigneeAddress;
+    }
+    if ((input as any).notifyPartyName) {
+      updatePayload.notifyParty = {
+        name: (input as any).notifyPartyName,
+        address: (input as any).notifyPartyAddress || (existing.notifyParty as any)?.address || '',
+      };
+      delete (updatePayload as any).notifyPartyName;
+      delete (updatePayload as any).notifyPartyAddress;
+    }
+
     if (input.agentId !== undefined) {
       updatePayload.agentId = input.agentId && UUID_REGEX.test(input.agentId) ? input.agentId : null;
     }
@@ -119,12 +150,12 @@ export class BillsOfLadingService {
       updatePayload.totalFreightUsd = String((Number(input.totalFreightUsd) || 0).toFixed(2));
     }
 
-    return this.repo.update(idOrNumber, updatePayload);
+    return this.repo.update(existing.id, updatePayload);
   }
 
   async deleteBill(idOrNumber: string) {
-    await this.getBill(idOrNumber);
-    return this.repo.delete(idOrNumber);
+    const existing = await this.getBill(idOrNumber);
+    return this.repo.delete(existing.id);
   }
 
   async placeHold(
