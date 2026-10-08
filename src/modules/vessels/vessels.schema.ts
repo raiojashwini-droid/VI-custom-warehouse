@@ -9,7 +9,7 @@ export const vesselQuerySchema = z.object({
 
 export const createVesselSchema = z.object({
   name: z.string().min(2, 'Vessel name is required'),
-  imoNumber: z.string().min(5, 'IMO number is required'),
+  imoNumber: z.string().min(1, 'IMO number is required'),
   flag: z.string().optional(),
   type: z.string().default('Container Feeder'),
   carrier: z.string().optional(),

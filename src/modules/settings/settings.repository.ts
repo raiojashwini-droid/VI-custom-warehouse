@@ -70,6 +70,13 @@ export class SettingsRepository {
       return true;
     });
   }
+
+  async resetDemo(userId?: string, userName?: string, userRole?: string, ipAddress?: string) {
+    await this.cleanSlate(userId, userName, userRole, ipAddress);
+    const { seedDatabase } = await import('../../db/seed.js');
+    await seedDatabase();
+    return true;
+  }
 }
 
 export const settingsRepository = new SettingsRepository();

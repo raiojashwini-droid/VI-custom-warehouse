@@ -29,6 +29,12 @@ export class SettingsController {
     await this.service.cleanSlate(user?.id, user?.name, user?.roleKey, request.ip);
     reply.send(successResponse({ success: true }, 'Transactional data cleared successfully (audit logs preserved)'));
   };
+
+  resetDemo = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    const user = request.user as { id?: string; name?: string; roleKey?: string } | undefined;
+    await this.service.resetDemo(user?.id, user?.name, user?.roleKey, request.ip);
+    reply.send(successResponse({ success: true }, 'Demo datasets restored successfully to factory defaults'));
+  };
 }
 
 export const settingsController = new SettingsController();

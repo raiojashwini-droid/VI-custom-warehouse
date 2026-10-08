@@ -26,6 +26,10 @@ export class SettingsService {
   async cleanSlate(userId?: string, userName?: string, userRole?: string, ipAddress?: string) {
     return this.repo.cleanSlate(userId, userName, userRole, ipAddress);
   }
+
+  async resetDemo(userId?: string, userName?: string, userRole?: string, ipAddress?: string) {
+    return this.repo.resetDemo(userId, userName, userRole, ipAddress);
+  }
 }
 
 export const settingsService = new SettingsService();

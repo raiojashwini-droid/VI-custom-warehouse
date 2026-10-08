@@ -11,4 +11,5 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
   app.get('/:key', settingsController.getByKey);
   app.put('/:key', { preHandler: [requireRole(ROLES.SUPER_ADMIN)] }, settingsController.update);
   app.post('/clean-slate', { preHandler: [requireRole(ROLES.SUPER_ADMIN)] }, settingsController.cleanSlate);
+  app.post('/reset-demo', { preHandler: [requireRole(ROLES.SUPER_ADMIN)] }, settingsController.resetDemo);
 }

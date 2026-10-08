@@ -20,9 +20,11 @@ import { eq, or, inArray, count } from 'drizzle-orm';
 const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
-  Planning: ['Loaded', 'Cancelled', 'Planning'],
-  Loaded: ['Sealed', 'Planning', 'Cancelled', 'Loaded'],
+  Planning: ['Loaded', 'Sealed', 'Loaded & Sealed', 'Draft', 'Cancelled', 'Planning'],
+  Draft: ['Planning', 'Loaded', 'Sealed', 'Draft', 'Cancelled'],
+  Loaded: ['Sealed', 'Loaded & Sealed', 'Planning', 'Cancelled', 'Loaded'],
   Sealed: ['In Transit', 'Loaded', 'Cancelled', 'Sealed'],
+  'Loaded & Sealed': ['In Transit', 'Loaded', 'Cancelled', 'Sealed', 'Loaded & Sealed'],
   'In Transit': ['Completed', 'Cancelled', 'In Transit'],
   Completed: ['Completed'],
   Cancelled: ['Planning'],
@@ -438,6 +440,11 @@ export class ConsolidationService {
 
   async updateConsolidation(id: string, input: UpdateConsolidationInput) {
     const existing = await this.getConsolidation(id);
+
+    // Normalize 'Loaded & Sealed' to 'Sealed' for consolidation domain lifecycle
+    if (input.status === 'Loaded & Sealed') {
+      input.status = 'Sealed';
+    }
 
     // Enforce state machine transitions
     if (input.status && input.status !== existing.status) {
